@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ua">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css">
+    <title>Chat</title>
+    <style>
+        body {
+            background: pink;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container d-flex justify-content-between">
+                <a href="#" class="navbar-brand d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true" class="mr-2"
+                        viewBox="0 0 24 24" focusable="false">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z">
+                        </path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                    <strong>daria.aabram</strong>
+                </a>
+                <button class="navbar-toggler" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="py-5 text-center">
+            <h2>Chat for web</h2>
+            <p class="lead">Вкажіть ваше ім’я і починайте переписку</p>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <h3>Форма повідомлень</h3>
+                <form id="messForm">
+                    <label for="name">Ім’я</label>
+                    <input type="text" name="name" id="name" placeholder="Введіть ім’я" class="form-control">
+                    <br>
+                    <label for="message">Повідомлення</label>
+                    <textarea name="message" id="message" class="form-control" placeholder="Введіть повідомлення"
+                        cols="30" rows="10"></textarea>
+                    <br>
+                    <input type="submit" value="Надіслати" class="btn btn-danger">
+                </form>
+            </div>
+            <div class="col-6">
+                <h3>Повідомлення</h3>
+                <div id="all_mess"></div>
+            </div>
+        </div>
+    </div>
+    <!-- 
+    <center>
+        <A href="history.html" onmouseover="img(1, 1)" onmouseout="img(1,0)">Переглянути історію</A>
+    </center> -->
+
+    <br><br>
+    <h3>Історія переписок</h3>
+
+
+    <form id="butn">
+        <input type="submit" value=Переглянути class="btn btn-danger">
+    </form><br>
+    <form id="clear">
+        <input type="submit" value=Сховати class="btn btn-danger">
+    </form><br>
+
+    <div id="AAAAh" name="mess"></div><br><br>
+
+
+
+    <script src="history.js"></script>
+
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="/__/firebase/7.5.2/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="/__/firebase/7.5.2/firebase-analytics.js"></script>
+
+    <!-- Initialize Firebase -->
+    <script src="/__/firebase/init.js"></script>
+
+    <!-- Add Firebase products that you want to use -->
+    <script src="/__/firebase/7.5.2/firebase-auth.js"></script>
+    <script src="/__/firebase/7.5.2/firebase-firestore.js"></script>
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var min = 1;
+        var max = 8;
+        var random = Math.floor(Math.random() * (max - min)) + min;
+
+        var alertClass;
+        switch (random) {
+            case 1:
+                alertClass = 'secondary';
+                break;
+            case 2:
+                alertClass = 'danger';
+                break;
+            case 3:
+                alertClass = 'success';
+                break;
+            case 4:
+                alertClass = 'warning';
+                break;
+            case 5:
+                alertClass = 'info';
+                break;
+            case 6:
+                alertClass = 'light';
+                break;
+            case 7:
+                alertClass = 'dark';
+                break;
+            case 8:
+                alertClass = 'primary';
+                break;
+        }
+    </script>
+
+
+    <script>
+        var socket = io.connect();
+        var $form = $("#messForm");
+        var $name = $("#name");
+        var $textarea = $("#message");
+        var $all_messages = $("#all_mess");
+        var $AAAAh = $("#AAAAh");
+        var $butn = $("#butn");
+        var $clear = $("#clear");
+
+        $form.submit(function (event) {
+            event.preventDefault();
+            socket.emit('send mess', { mess: $textarea.val(), name: $name.val(), className: alertClass });
+            $textarea.val('');
+        });
+
+        socket.on('add mess', function (data) {
+            $all_messages.append("<div class='alert alert-" + data.className + "''><b>" + data.name + "</b>: " + data.mess + "</div>");
+        });
+
+
+        $butn.submit(function (event) {
+            event.preventDefault();
+            socket.emit("get hist");
+        });
+
+        socket.on('add hist', function (data) {
+            $AAAAh.append("<div class='alert alert-" + data.className + "''><b>" + data.name + "</b>: " + data.mess + "</div>");
+        });
+
+        $clear.submit(function (event) {
+            event.preventDefault();
+            $AAAAh.empty();
+        });
+    </script>
+
+
+    <!-- <script>
+        var MongoClient = require('mongodb').MongoClient;
+        //var format = require('util').format;
+
+        var url = "mongodb://localhost:27017/userCollectionDB";
+
+
+        MongoClient.connect("mongodb://localhost", function (err, client) {
+            if (err) throw err;
+
+            var db = client.db("userCollectionDB");
+            //var collection = db.collection('users');
+            var collection = db.collection("users");
+
+            //var user = {mess : "Hello", name : "Bob", className : "primary"};
+
+            var cursor = collection.find();
+
+            cursor.toArray(function (err, res) {
+
+                res.forEach(element => {
+                    //console.log("dfdfdfssfsdfsfsd");
+                    $AAAAh.append("<div class='alert alert-" + element.className + "''><b>" + element.name + "</b>: " + element.mess + "</div>");
+                });
+
+                //console.log(res[0]);
+                client.close();
+            })
+        });
+    </script> -->
+</body>
+
+</html>
